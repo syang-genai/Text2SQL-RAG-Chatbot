@@ -125,6 +125,7 @@ This project contains two parts:
         embedding=embedding_model,
         persist_directory=persist_directory 
     )
+    vectordb.persist()
 ```
 
 2. Create LLM Model 

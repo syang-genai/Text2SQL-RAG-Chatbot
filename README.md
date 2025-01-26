@@ -116,14 +116,14 @@ This project contains two parts:
 
 ```
     from langchain.vectorstores import Chroma
-    embeddings = HuggingFaceEmbeddings(model_name="/root/data/model/sentence-transformer")
 
+    embedding_model = HuggingFaceEmbeddings(model_name="/root/data/model/sentence-transformer")
     persist_directory = 'data_base/vector_db/chroma'
 
     vectordb = Chroma.from_documents(
         documents=split_docs,
-        embedding=embeddings,
-        persist_directory=persist_directory  # 允许我们将persist_directory目录保存到磁盘上
+        embedding=embedding_model,
+        persist_directory=persist_directory 
     )
 ```
 

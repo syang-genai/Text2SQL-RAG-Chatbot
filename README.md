@@ -36,18 +36,17 @@ This project contains two parts:
 ```
     
 3. Model Memory Reduction and Speedup
-<br> Training the Llama 7B model necessitates 56 GB of GPU memory with full precision, calculated as (8 bytes per parameter * 7 billion parameters, assuming AdamW optimizer). To mitigate memory consumption and accelerate training, we concurrently employ Quantization and LoRA methods. This approach reduces the number of trainable parameters to approximately 3.5 billion.
+<br> Training the Llama 7B model necessitates 112 GB of GPU memory with mixed precision, calculated as ((2+2+12) bytes per parameter * 7 billion parameters, assuming AdamW optimizer). To mitigate memory consumption and accelerate training, we concurrently employ Quantization LoRA methods. This approach reduces the number of trainable parameters to approximately 3.5 billion.
 <br> a.Quantization method involves representing weights and activations using lower-precision data types such as 8-bit integers (int8).
 <br> b.LoRA involves inserting a smaller number of new weights into the model, and only these weights are trained.
 
-<br> The following code demonstrates how to utilize configurations for quantization and LoRa:
+<br> The following code demonstrates how to utilize configurations for Quantization LoRa:
 ```
     model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
     model = get_peft_model(model, peft_config)
-
 ```
 
-<br> Here are the configurations for quantization and LoRa:
+<br> Here are the configurations for Quantization LoRa:
 ```
   peft_config:
     lora_alpha: 16
@@ -66,7 +65,7 @@ This project contains two parts:
 ```
 
 4. Speeding Up Training and Conducting Experiments
-<br> The DeepSpeed Stage 2 is utilized to accelerate training and offload the model from GPU to CPU. DeepSpeed is configured through the configuration file as shown below:
+<br> The DeepSpeed Stage 2 is utilized to accelerate training and offload optimizer state from GPU to CPU. DeepSpeed is configured through the configuration file as shown below:
 ```
   deepspeed:
     communication_data_type: fp16
@@ -90,9 +89,7 @@ This project contains two parts:
 
 ![training_loss](train_eval_loss.png)
 
-5. Evaluation Matrix
-<br> In general, pretrained large language models are evaluated through widely used benchmark datasets such as Alpaca, among others. Here, to assess the results of instruction fine-tuning, the test portion of the original dataset is utilized to evaluate performance. Additionally, evaluation metrics include exact match, BLEU score, and ROUGE score. Meanwhile, parameters such as temperature, top-k, and top-p can be tuned to enhance performance.
-    
+5. Evaluation Matrix    
     a. Llama Model without finetuning
         <br> prediction and label examples:
         <br> preds ["SELECT * FROM table_name_99 WHERE year = 'Pazz & Jop';"]
@@ -109,9 +106,8 @@ This project contains two parts:
         <br> {'bleu': 0.88, 'precisions': [0.93, 0.90, 0.87, 0.84], 'brevity_penalty': 1.0, 'length_ratio': 1.00}
         <br> {'rouge1': 0.95, 'rouge2': 0.91, 'rougeL': 0.94, 'rougeLsum': 0.94}
 
-6. Challenging Debugging Parts
-    <br>a. When integrated together Weight&bias and DeepSpeed may encounter the bug "AttributeError: 'Accelerator' object has no attribute 'deepspeed_config'" when setting "os.environ["WANDB_LOG_MODEL"] = "checkpoint"". This issue is confusing. However, after scrutinizing the model section by section, it becomes evident that the problem originates from either DeepSpeed or Weight&bias. The eventual solution set "os.environ["WANDB_LOG_MODEL"] = False". This resolves the issue and prevents the bug from occurring.
-    <br>b. Do not use DataCollatorForLanguageModeling for llama when eos_token_id=pad_token_id, because DataCollatorForLanguageModeling will replace all pad_token_id with -100, the model will not know where to end the sentense. And will continue generate tokens. Use the default datacollector instead if you set eos_token_id=pad_token_id. 
+7. Challenging Debugging Parts
+    <br>a. When integrated together Weight&bias and DeepSpeed may encounter the bug "AttributeError: 'Accelerator' object has no attribute 'deepspeed_config'" when setting "os.environ["WANDB_LOG_MODEL"] = "checkpoint"". This issue is confusing. However, after scrutinizing the model section by section, it becomes evident that the problem originates from either DeepSpeed or Weight&bias. The solution is to set "os.environ["WANDB_LOG_MODEL"] = False". This resolves the issue and prevents the bug from occurring.
 
 #### Langchain RAG and Gradio Deployment
 1. Build Vector Database

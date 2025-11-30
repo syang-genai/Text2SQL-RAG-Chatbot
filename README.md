@@ -18,7 +18,7 @@ This project contains two parts:
 <br> The code corresponds to applying the template:
 
 ```
-        system_prompt = (
+    system_prompt = (
         "You are a helpful programmer assistant that excels at SQL. "
         "When prompted with a task and a definition of an SQL table, you "
         "respond with a SQL query to retrieve information from the table. "

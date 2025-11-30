@@ -41,7 +41,7 @@ for dir_path in tar_dir:
     docs.extend(get_text(dir_path))
 
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=20, chunk_overlap=10)
+    chunk_size=512, chunk_overlap=20)
 split_docs = text_splitter.split_documents(docs)
 
 embeddings = HuggingFaceEmbeddings(model_name="/root/data/model/sentence-transformer")

@@ -17,7 +17,7 @@ def load_chain():
 
     llm = SQL_LLM(model_path = "/root/data/model/meta-llama/Llama-2-7b-chat-hf")
 
-    template = """{context} Task: {question}\nSQL query:"""
+    template = """Task: {context}, {question}\nSQL query:"""
 
     QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context","question"], template=template)
 
